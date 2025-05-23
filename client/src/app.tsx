@@ -1,5 +1,6 @@
 import ConnectLabel from "./components/connect-label";
 import Droplet from "./components/droplet";
+import Player from "./components/player";
 import { useLikes } from "./hooks/use-likes";
 import { socket } from "./socket";
 
@@ -12,6 +13,7 @@ export default function App() {
     <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-200 to-blue-500">
       <ConnectLabel />
       <Droplet onClick={handleClick}>{likes}</Droplet>
+      <Player onClick={handleClick}>{likes}</Player>
     </div>
   );
 }

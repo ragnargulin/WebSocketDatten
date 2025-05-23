@@ -19,19 +19,19 @@ export default function Player({ children, onClick }: Props) {
     setWobble(true);
   }, [children]);
 
-  // Lyssna på W, A, S, D
+  // Lyssna på piltangenter
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       setPosition((prev) => {
         const step = 10;
-        switch (e.key.toLowerCase()) {
-          case "w":
+        switch (e.key) {
+          case "ArrowUp":
             return { ...prev, y: prev.y - step };
-          case "s":
+          case "ArrowDown":
             return { ...prev, y: prev.y + step };
-          case "a":
+          case "ArrowLeft":
             return { ...prev, x: prev.x - step };
-          case "d":
+          case "ArrowRight":
             return { ...prev, x: prev.x + step };
           default:
             return prev;
