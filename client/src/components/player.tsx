@@ -1,4 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 interface Props {
   onClick: () => void;
@@ -19,28 +22,46 @@ export default function Player({ children, onClick }: Props) {
     setWobble(true);
   }, [children]);
 
-  // Lyssna på piltangenter
+  // Send position on arrow key press
   useEffect(() => {
+    const step = 10;
     const handleKeyDown = (e: KeyboardEvent) => {
       setPosition((prev) => {
-        const step = 10;
+        const newPos = { ...prev };
         switch (e.key) {
           case "ArrowUp":
-            return { ...prev, y: prev.y - step };
+            newPos.y -= step;
+            break;
           case "ArrowDown":
-            return { ...prev, y: prev.y + step };
+            newPos.y += step;
+            break;
           case "ArrowLeft":
-            return { ...prev, x: prev.x - step };
+            newPos.x -= step;
+            break;
           case "ArrowRight":
-            return { ...prev, x: prev.x + step };
+            newPos.x += step;
+            break;
           default:
             return prev;
         }
+        socket.emit("position", newPos); // 🟢 emit new position
+        return newPos;
       });
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // 🟣 Update position when others move the player
+  useEffect(() => {
+    socket.on("playerMoved", (pos) => {
+      setPosition(pos);
+    });
+
+    return () => {
+      socket.off("playerMoved");
+    };
   }, []);
 
   return (
@@ -53,13 +74,13 @@ export default function Player({ children, onClick }: Props) {
         position: "absolute",
       }}
       className={`
-        w-56 h-56                     
+        w-56 h-56
         flex items-center justify-center
-        rounded-full                  
+        rounded-full
         bg-blue-600 text-white
         text-5xl font-extrabold
         cursor-pointer select-none
-        shadow-2xl                    
+        shadow-2xl
         ${wobble ? "animate-wobble" : ""}
       `}
     >
